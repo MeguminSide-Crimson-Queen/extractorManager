@@ -23,7 +23,7 @@ async function start() {
   }
 
   // 👇 CAMBIÁ ESTA URL POR LA DE TU WORKER
-  const workerURL = "https://TU-WORKER.workers.dev/?url=" 
+  const workerURL = "https://extratormanager.freeblueth67.workers.dev/" 
                     + encodeURIComponent(targetURL)
 
   const res = await fetch(workerURL)
