@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Extractor de Imágenes</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<input id="url" placeholder="Pega la URL del capítulo" style="width:100%;padding:8px;">
+<br><br>
+<button onclick="start()">Descargar imágenes</button>
+
+<script>
+async function start() {
+  const input = document.getElementById("url")
+  const targetURL = input.value.trim()
+
+  if (!targetURL) {
+    alert("Pega una URL")
+    return
+  }
+
+  // 👇 CAMBIÁ ESTA URL POR LA DE TU WORKER
+  const workerURL = "https://extratormanager.freeblueth67.workers.dev/" 
+                    + encodeURIComponent(targetURL)
+
+  const res = await fetch(workerURL)
+  const images = await res.json()
+
+  if (!images.length) {
+    alert("No se encontraron imágenes")
+    return
+  }
+
+  const zip = new JSZip()
+  let i = 0
+
+  for (const img of images) {
+    const r = await fetch(img)
+    const blob = await r.blob()
+
+    const ext = blob.type.split("/")[1] || "jpg"
+    const name = String(i).padStart(2, "0") + "." + ext
+
+    zip.file(name, blob)
+    i++
+  }
+
+  const content = await zip.generateAsync({ type: "blob" })
+
+  const a = document.createElement("a")
+  a.href = URL.createObjectURL(content)
+  a.download = "imagenes.zip"
+  a.click()
+}
+</script>
+
+</body>
+</html>
