@@ -1,51 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Extractor de Imágenes</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-</head>
-<body>
-
-<input id="url" placeholder="Pega la URL del capítulo" style="width:100%;padding:8px;">
-<br><br>
-<button onclick="start()">Descargar imágenes</button>
+<input id="url" placeholder="Pega la URL" style="width:100%">
+<button onclick="start()">Descargar</button>
 
 <script>
 async function start() {
-  const input = document.getElementById("url")
-  const targetURL = input.value.trim()
+  const url = document.getElementById("url").value
+  const worker = "https://extratormanager.freeblueth67.workers.dev/" + encodeURIComponent(url)
 
-  if (!targetURL) {
-    alert("Pega una URL")
-    return
-  }
-
-  // 👇 CAMBIÁ ESTA URL POR LA DE TU WORKER
-  const workerURL = "https://extratormanager.freeblueth67.workers.dev/" 
-                    + encodeURIComponent(targetURL)
-
-  const res = await fetch(workerURL)
+  const res = await fetch(worker)
   const images = await res.json()
 
-  if (!images.length) {
-    alert("No se encontraron imágenes")
-    return
-  }
-
   const zip = new JSZip()
-  let i = 0
+  let index = 0
 
-  for (const img of images) {
-    const r = await fetch(img)
-    const blob = await r.blob()
+  for (const imgUrl of images) {
+    const imgRes = await fetch(imgUrl)
+    const blob = await imgRes.blob()
 
     const ext = blob.type.split("/")[1] || "jpg"
-    const name = String(i).padStart(2, "0") + "." + ext
+    const name = String(index).padStart(2, "0") + "." + ext
 
     zip.file(name, blob)
-    i++
+    index++
   }
 
   const content = await zip.generateAsync({ type: "blob" })
@@ -56,6 +31,3 @@ async function start() {
   a.click()
 }
 </script>
-
-</body>
-</html>
